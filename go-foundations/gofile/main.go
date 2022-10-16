@@ -2,6 +2,7 @@ package main
 
 import (
 	"gofile/read"
+	"gofile/write"
 	"log"
 	"os"
 )
@@ -15,6 +16,11 @@ func init() {
 func main() {
 	log.Println("main")
 
+	// readDemo()
+	writeDemo()
+}
+
+func readDemo() {
 	// 读取文件 基本使用
 	log.Println("读取文件 基本使用")
 	read.BasicRead()
@@ -26,4 +32,10 @@ func main() {
 	// ioutil.ReadFile读取整个文件
 	log.Println("ioutil.ReadFile读取整个文件")
 	read.IoutilRead()
+}
+
+func writeDemo() {
+	// 写入文件 基本使用
+	log.Println("写入文件 基本使用")
+	write.BasicWrite()
 }
