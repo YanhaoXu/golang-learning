@@ -9,7 +9,7 @@ type User struct {
 	conn net.Conn
 }
 
-// 创建一个用户的API
+// NerUser 创建一个用户的API
 func NerUser(conn net.Conn) *User {
 	userAddr := conn.RemoteAddr().String()
 
@@ -24,7 +24,7 @@ func NerUser(conn net.Conn) *User {
 	return user
 }
 
-// 监听当前的User channel的方法，一但有消息，就直接发送给对方的客户端
+// ListenMessage 监听当前的User channel的方法，一但有消息，就直接发送给对方的客户端
 func (u User) ListenMessage() {
 	for {
 		msg := <-u.C
