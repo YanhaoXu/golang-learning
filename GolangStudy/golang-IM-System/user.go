@@ -9,8 +9,8 @@ type User struct {
 	conn net.Conn
 }
 
-// NerUser 创建一个用户的API
-func NerUser(conn net.Conn) *User {
+// NewUser 创建一个用户的API
+func NewUser(conn net.Conn) *User {
 	userAddr := conn.RemoteAddr().String()
 
 	user := &User{

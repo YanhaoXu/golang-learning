@@ -49,8 +49,21 @@ func (this *Server) BroadCast(user *User, msg string) {
 	this.Message <- sendMsg
 }
 
-func (s *Server) Handler(conn net.Conn) {
+func (this *Server) Handler(conn net.Conn) {
+	//...当前链接的业务
 	log.Println("链接建立成功...")
+
+	user := NewUser(conn)
+
+	//用户上线,将用户加入到onlineMap中
+	this.mapLock.Lock()
+	this.OnlineMap[user.Name] = user
+	this.mapLock.Unlock()
+
+	// 广播当前用户上线的消息
+	this.BroadCast(user, "已上线")
+
+	select {}
 }
 
 // Start 启动服务器的窗口
