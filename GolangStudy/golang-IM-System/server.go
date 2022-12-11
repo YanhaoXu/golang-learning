@@ -54,7 +54,6 @@ func (this *Server) Handler(conn net.Conn) {
 	log.Println("链接建立成功...")
 
 	user := NewUser(conn)
-
 	//用户上线,将用户加入到onlineMap中
 	this.mapLock.Lock()
 	this.OnlineMap[user.Name] = user
@@ -67,13 +66,16 @@ func (this *Server) Handler(conn net.Conn) {
 }
 
 // Start 启动服务器的窗口
-func (s *Server) Start() {
-	listen, err := net.Listen("tcp", fmt.Sprintf("%s:%d", s.Ip, s.Port))
+func (this *Server) Start() {
+	listen, err := net.Listen("tcp", fmt.Sprintf("%s:%d", this.Ip, this.Port))
 	if err != nil {
 		log.Println("net.Lister err:", err)
 	}
 	// close listen socket
 	defer listen.Close()
+
+	// 启动监听Message的goroutine
+	go this.ListenMessager()
 
 	for {
 		//accept
@@ -84,7 +86,7 @@ func (s *Server) Start() {
 		}
 
 		// do handler
-		go s.Handler(conn)
+		go this.Handler(conn)
 	}
 
 }
