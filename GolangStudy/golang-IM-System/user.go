@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net"
+	"strings"
 )
 
 type User struct {
@@ -67,10 +68,25 @@ func (this *User) DoMessage(msg string) {
 
 		this.server.mapLock.Lock()
 		for _, user := range this.server.OnlineMap {
-			onlineMsg := fmt.Sprintln("[%s]%s:online...", user.Addr, user.Name)
-			this.SendMsg(onlineMsg)
+			this.SendMsg(fmt.Sprintf("[%s]%s:online...\n", user.Addr, user.Name))
 		}
 		this.server.mapLock.Unlock()
+	} else if len(msg) > 7 && msg[:7] == "rename|" {
+		// 消息格式：rename|张三
+		newName := strings.Split(msg, "|")[1]
+		// 判断name是否存在
+		_, ok := this.server.OnlineMap[newName]
+		if ok {
+			this.SendMsg("The current user name is in use\n")
+		} else {
+			this.server.mapLock.Lock()
+			delete(this.server.OnlineMap, this.Name)
+			this.server.OnlineMap[newName] = this
+			this.server.mapLock.Unlock()
+
+			this.Name = newName
+			this.SendMsg("You have updated the user name:" + this.Name + "\n")
+		}
 
 	} else {
 		this.server.BroadCast(this, msg)
