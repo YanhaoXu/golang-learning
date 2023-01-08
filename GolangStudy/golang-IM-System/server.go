@@ -33,29 +33,29 @@ func NewServer(ip string, port int) *Server {
 }
 
 // ListenMessage 监听Message广播消息channel的goroutine，一但有消息就发送给全部的在线User
-func (this *Server) ListenMessage() {
+func (s *Server) ListenMessage() {
 	for {
-		msg := <-this.Message
+		msg := <-s.Message
 
 		// 将消息发送给全部的在线User
-		this.mapLock.Lock()
-		for _, cli := range this.OnlineMap {
+		s.mapLock.Lock()
+		for _, cli := range s.OnlineMap {
 			cli.C <- msg
 		}
-		this.mapLock.Unlock()
+		s.mapLock.Unlock()
 	}
 }
 
 // BroadCast 广播消息的方法
-func (this *Server) BroadCast(user *User, msg string) {
-	this.Message <- fmt.Sprintf("[%s]%s:%s", user.Addr, user.Name, msg)
+func (s *Server) BroadCast(user *User, msg string) {
+	s.Message <- fmt.Sprintf("[%s]%s:%s", user.Addr, user.Name, msg)
 }
 
-func (this *Server) Handler(conn net.Conn) {
+func (s *Server) Handler(conn net.Conn) {
 	//...当前链接的业务
 	log.Println("Successful link establishment...")
 
-	user := NewUser(conn, this)
+	user := NewUser(conn, s)
 
 	user.Online()
 	// 监听用户是否活跃的channel
@@ -85,7 +85,7 @@ func (this *Server) Handler(conn net.Conn) {
 	}()
 
 	// 广播当前用户上线的消息
-	this.BroadCast(user, "Already online")
+	s.BroadCast(user, "Already online")
 
 	// 当前handle阻塞
 	for {
@@ -115,9 +115,9 @@ func (this *Server) Handler(conn net.Conn) {
 }
 
 // Start 启动服务器的窗口
-func (this *Server) Start() {
+func (s *Server) Start() {
 	// socket listen
-	listen, err := net.Listen("tcp", fmt.Sprintf("%s:%d", this.Ip, this.Port))
+	listen, err := net.Listen("tcp", fmt.Sprintf("%s:%d", s.Ip, s.Port))
 	if err != nil {
 		log.Println("net.Lister err:", err)
 	}
@@ -125,7 +125,7 @@ func (this *Server) Start() {
 	defer listen.Close()
 
 	// 启动监听Message的goroutine
-	go this.ListenMessage()
+	go s.ListenMessage()
 
 	for {
 		//accept
@@ -136,7 +136,7 @@ func (this *Server) Start() {
 		}
 
 		// do handler
-		go this.Handler(conn)
+		go s.Handler(conn)
 	}
 
 }
